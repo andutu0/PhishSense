@@ -1,26 +1,126 @@
+/* === General === */
 body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    margin-top: 50px;
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  background-color: #0d1117;
+  color: #e6edf3;
 }
-.container {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+/* === Navbar === */
+.navbar {
+  width: 100%;
+  background-color: #0d1117;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 12px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
-textarea {
-    width: 100%;
-    height: 150px;
-    margin-bottom: 10px;
-    padding: 10px;
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 40px
 }
-button {
-    padding: 10px 20px;
-    cursor: pointer;
+
+.logo {
+  height: 130px;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.4));
 }
-#result {
-    margin-top: 20px;
+
+/* === Main content === */
+.page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 120px;
+  min-height: 100vh;
+}
+
+.card {
+  background: #161b22;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.05);
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #00bcd4;
+  margin-bottom: 0.5rem;
+}
+
+.tag {
+  color: #8b949e;
+  margin-bottom: 1.5rem;
+}
+
+/* === Form === */
+.label {
+  display: block;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #c9d1d9;
+}
+
+.input {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem;
+  background: #0d1117;
+  color: #e6edf3;
+  outline: none;
+}
+
+.input:focus {
+  box-shadow: 0 0 5px #00bcd4;
+}
+
+.textarea {
+  height: 120px;
+  resize: vertical;
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  background: #00bcd4;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.2rem;
+  color: #0d1117;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: #00e5ff;
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid #00bcd4;
+  color: #00bcd4;
+}
+
+.btn.ghost:hover {
+  background: rgba(0, 188, 212, 0.1);
+}
+
+/* === Footer === */
+.card-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #8b949e;
 }

@@ -1,21 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>PhishScan</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PhishSense — Detect malicious emails and URLs</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>PhishScan 🔍</h1>
-        <form id="analyze-form" enctype="multipart/form-data">
-            <textarea name="text" placeholder="Paste email text here..."></textarea><br>
-            <input type="file" name="qr_file" accept="image/*"><br>
-            <button type="submit">Analyze</button>
-        </form>
-        <div id="result"></div>
-    </div>
+<nav class="navbar">
+  <div class="nav-container">
+    <img src="{{ url_for('static', filename='img/logo_phishsense.png') }}" alt="PhishSense Logo" class="logo">
+  </div>
+</nav>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<main class="page">
+  <div class="card">
+    <header class="card-header">
+      <h1>Detect phishing emails & malicious URLs</h1>
+      <p class="tag">Paste your email text or upload a QR code for instant analysis</p>
+    </header>
+
+    <form id="analyze-form" class="form" enctype="multipart/form-data">
+      <label class="label">Email text</label>
+      <textarea name="text" placeholder="Paste email text here..." class="input textarea"></textarea>
+
+      <label class="label">Or upload QR image</label>
+      <input type="file" name="qr_file" accept="image/*" class="input file">
+
+      <div class="actions">
+        <button type="submit" class="btn">Analyze</button>
+        <button type="button" id="clear-btn" class="btn ghost">Clear</button>
+      </div>
+    </form>
+
+    <section id="result" class="result" aria-live="polite"></section>
+
+    <footer class="card-footer">
+      <small>Local analysis — no uploads are stored.</small>
+    </footer>
+  </div>
+</main>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
