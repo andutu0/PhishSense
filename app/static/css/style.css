@@ -1,111 +1,164 @@
-/* === General === */
-body {
+/* ============================================
+   GLOBAL
+============================================ */
+* {
   margin: 0;
-  font-family: "Inter", Arial, sans-serif;
-  background-color: #0d1117;
-  color: #e6edf3;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* === Navbar === */
+body, html {
+  height: 100%;
+  font-family: "Inter", Arial, sans-serif;
+  background: url('/static/img/logo5.png') no-repeat center center fixed !important;
+  background-size: cover !important;
+  color: #e6edf3;
+  overflow-x: hidden;
+}
+
+/* Dark overlay + blur */
+.background-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 17, 23, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 1;
+}
+
+/* ============================================
+   NAVBAR
+============================================ */
 .navbar {
   width: 100%;
-  background-color: #0d1117;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  padding: 12px 0;
   position: fixed;
   top: 0;
   left: 0;
+  padding: 10px 0;
   z-index: 1000;
+  background: #020B18;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .nav-container {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding-left: 40px
+  justify-content: center;
+  padding: 0;
 }
-
 .logo {
-  height: 130px;
-  filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.4));
+  height: 100px;
+  transition: transform 0.3s ease;
+  animation: pulseLogo 2.2s ease-in-out infinite;
 }
 
-/* === Main content === */
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* ============================================
+   PAGE LAYOUT
+============================================ */
 .page {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-top: 120px;
+  justify-content: flex-start;   /* mutăm tot conținutul spre stânga */
+  align-items: flex-start;
+  padding-top: 150px;
+  padding-left: 0px;           /* distanță față de marginea stângă */
   min-height: 100vh;
+  position: relative;
+  z-index: 5;
 }
 
+/* ============================================
+   CARD (FORM)
+============================================ */
 .card {
-  background: #161b22;
-  border-radius: 16px;
-  padding: 2rem;
-  max-width: 600px;
   width: 90%;
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.05);
+  max-width: 650px;
+  margin: 2rem 0 2rem 170px;;
+  padding: 2rem;
+
+  background: rgba(22, 27, 34, 0.75);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.05);
+
+  position: relative;
+  z-index: 20;
+
+  opacity: 1; /* vizibil direct */
+  transform: none;
 }
 
+/* titluri */
 h1 {
-  font-size: 1.8rem;
-  color: #00bcd4;
-  margin-bottom: 0.5rem;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #00e5ff;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  margin-bottom: 0.6rem;
 }
 
 .tag {
-  color: #8b949e;
-  margin-bottom: 1.5rem;
+  color: #9aa2ac;
+  margin-bottom: 1.6rem;
 }
 
-/* === Form === */
+/* ============================================
+   FORM ELEMENTS
+============================================ */
 .label {
-  display: block;
   font-weight: 600;
   margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   color: #c9d1d9;
+  display: block;
 }
 
 .input {
   width: 100%;
-  border: none;
-  border-radius: 8px;
-  padding: 0.8rem;
-  background: #0d1117;
+  border-radius: 10px;
+  padding: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(13, 17, 23, 0.6);
   color: #e6edf3;
   outline: none;
+  transition: 0.3s ease;
 }
 
 .input:focus {
-  box-shadow: 0 0 5px #00bcd4;
+  border-color: #00e5ff;
+  box-shadow: 0 0 10px rgba(0,229,255,0.4);
 }
 
 .textarea {
-  height: 120px;
+  height: 130px;
   resize: vertical;
 }
 
+/* Buttons */
 .actions {
-  margin-top: 1.5rem;
+  margin-top: 1.8rem;
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .btn {
   background: #00bcd4;
   border: none;
-  border-radius: 6px;
-  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  padding: 0.8rem 1.4rem;
   color: #0d1117;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.3s;
 }
 
 .btn:hover {
   background: #00e5ff;
+  transform: scale(1.03);
 }
 
 .btn.ghost {
@@ -115,12 +168,27 @@ h1 {
 }
 
 .btn.ghost:hover {
-  background: rgba(0, 188, 212, 0.1);
+  background: rgba(0,188,212,0.15);
 }
 
-/* === Footer === */
+/* Footer */
 .card-footer {
   margin-top: 1.5rem;
   text-align: center;
   color: #8b949e;
+  font-size: 0.9rem;
+}
+@keyframes pulseLogo {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px #00e5ff);
+  }
+  50% {
+    transform: scale(1.07);
+    filter: drop-shadow(0 0 12px #00e5ff);
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px #00e5ff);
+  }
 }
