@@ -3,7 +3,7 @@ from typing import Dict, Any
 from PIL import Image
 from pyzbar.pyzbar import decode
 
-
+# extract QR code data from uploaded image file
 def decode_qr_image(file_storage) -> Dict[str, Any]:
     image = Image.open(file_storage.stream)
     decoded = decode(image)

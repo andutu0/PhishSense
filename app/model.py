@@ -4,6 +4,7 @@ import numpy as np
 model = None
 vectorizer = None
 
+# load model and vectorizer
 def load_model(model_path, vectorizer_path):
     global model, vectorizer
     try:
@@ -15,6 +16,7 @@ def load_model(model_path, vectorizer_path):
         model = None
         vectorizer = None
 
+# predict function
 def predict(text):
     if model is None or vectorizer is None:
         return {"verdict": "safe", "confidence": 0.5}

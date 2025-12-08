@@ -1,125 +1,72 @@
-import argparse
-import csv
-from collections import Counter
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
-
-from sklearn.feature_extraction import DictVectorizer
+#!/usr/bin/env python3
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
-import pickle
-
-from app.analysis import url_utils, feature_extractor
-
-
-def load_dataset(csv_path: Path) -> Tuple[List[Dict[str, Any]], List[int]]:
-    features: List[Dict[str, Any]] = []
-    labels: List[int] = []
-
-    with csv_path.open("r", encoding="utf8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if "url" not in row or "label" not in row:
-                continue
-
-            url = row["url"]
-            label_raw = str(row["label"]).strip().lower()
-
-            if label_raw in ("phish", "phishing", "malicious", "bad", "1"):
-                label = 1
-            else:
-                label = 0
-
-            parsed = url_utils.extract_url_features(url)
-            feats = feature_extractor.build_features_from_url(parsed)
-            features.append(feats)
-            labels.append(label)
-
-    return features, labels
-
+from sklearn.metrics import classification_report, accuracy_score
+import joblib
+from pathlib import Path
+import argparse
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--csv",
-        required=True,
-        help="Path to CSV dataset with columns url,label",
-    )
-    parser.add_argument(
-        "--model-dir",
-        default="model",
-        help="Directory to save model and vectorizer",
-    )
+    parser = argparse.ArgumentParser(description="Train URL classification model")
+    parser.add_argument("--csv", default="data/urls_dataset.csv", help="Path to URLs dataset")
     args = parser.parse_args()
+    
+    # paths
+    PROJECT_ROOT = Path(__file__).resolve().parent.parent
+    DATA_FILE = PROJECT_ROOT / args.csv
+    MODEL_DIR = PROJECT_ROOT / "model"
+    MODEL_DIR.mkdir(exist_ok=True)
 
-    csv_path = Path(args.csv)
-    if not csv_path.exists():
-        raise SystemExit(f"Dataset file not found: {csv_path}")
+    # load dataset
+    print(f"Loading data from: {DATA_FILE}")
+    df = pd.read_csv(DATA_FILE)
+    print(f"Dataset shape: {df.shape}")
+    print(f"Label distribution:\n{df['label'].value_counts()}")
 
-    X_dicts, y = load_dataset(csv_path)
+    # prepare data
+    X = df['url'].values
+    y = df['label'].map({'benign': 0, 'phishing': 1}).values
 
-    if not X_dicts:
-        raise SystemExit("Dataset is empty or could not be parsed")
+    print(f"Class distribution: benign={sum(y==0)}, phishing={sum(y==1)}")
 
-    label_counts = Counter(y)
-    print("Label counts:", label_counts)
-
-    vec = DictVectorizer(sparse=True)
-    X = vec.fit_transform(X_dicts)
-
-    min_count = min(label_counts.values())
-    num_classes = len(label_counts)
-    n_samples = len(y)
-
-    can_stratify = (
-        num_classes >= 2
-        and min_count >= 2
-        and n_samples >= 4
+    # split data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    if not can_stratify:
-        print()
-        print("Warning: dataset too small or unbalanced for stratified train/test split.")
-        print("Training on the full dataset and skipping evaluation split.")
-        print()
+    # vectorize URLs
+    vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 3))
+    X_train_vec = vectorizer.fit_transform(X_train)
+    X_test_vec = vectorizer.transform(X_test)
 
-        clf = LogisticRegression(max_iter=1000)
-        clf.fit(X, y)
+    # train model
+    print("Training model...")
+    model = LogisticRegression(max_iter=1000, random_state=42, class_weight='balanced')
+    model.fit(X_train_vec, y_train)
 
-    else:
-        X_train, X_test, y_train, y_test = train_test_split(
-            X,
-            y,
-            test_size=0.2,
-            random_state=42,
-            stratify=y,
-        )
+    # evaluate
+    y_pred = model.predict(X_test_vec)
+    print(f"\nAccuracy: {accuracy_score(y_test, y_pred):.4f}")
+    print(f"\nClassification Report:\n{classification_report(y_test, y_pred, target_names=['benign', 'phishing'])}")
 
-        clf = LogisticRegression(max_iter=1000)
-        clf.fit(X_train, y_train)
+    # test specific URL for validating the model
+    test_url = "http://paypal-dispute-resolution.org"
+    test_vec = vectorizer.transform([test_url])
+    test_pred = model.predict(test_vec)[0]
+    test_proba = model.predict_proba(test_vec)[0]
+    print(f"\nTest URL: {test_url}")
+    print(f"Prediction: {'phishing' if test_pred == 1 else 'benign'}")
+    print(f"Probability: {test_proba}")
 
-        y_pred = clf.predict(X_test)
-        print()
-        print("Classification report on held-out test set:")
-        print(classification_report(y_test, y_pred))
-
-    model_dir = Path(args.model_dir)
-    model_dir.mkdir(exist_ok=True)
-
-    model_path = model_dir / "model.pkl"
-    vec_path = model_dir / "vectorizer.pkl"
-
-    with model_path.open("wb") as f:
-        pickle.dump(clf, f)
-
-    with vec_path.open("wb") as f:
-        pickle.dump(vec, f)
-
-    print()
-    print(f"Saved model to:      {model_path}")
-    print(f"Saved vectorizer to: {vec_path}")
-
+    # save model
+    model_path = MODEL_DIR / "model.joblib"
+    vectorizer_path = MODEL_DIR / "vectorizer.joblib"
+    joblib.dump(model, model_path)
+    joblib.dump(vectorizer, vectorizer_path)
+    print(f"\nModel saved to: {model_path}")
+    print(f"Vectorizer saved to: {vectorizer_path}")
 
 if __name__ == "__main__":
     main()

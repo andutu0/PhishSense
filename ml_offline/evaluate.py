@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report
 from app.analysis import url_utils, feature_extractor
 from app.ml.model_loader import get_model_and_vectorizer
 
-
+# load dataset from CSV
 def load_dataset(csv_path: Path) -> Tuple[List[Dict[str, Any]], List[int]]:
     feats: List[Dict[str, Any]] = []
     labels: List[int] = []
@@ -31,7 +31,7 @@ def load_dataset(csv_path: Path) -> Tuple[List[Dict[str, Any]], List[int]]:
 
     return feats, labels
 
-
+# main evaluation function
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--csv", required=True, help="Path to CSV dataset")

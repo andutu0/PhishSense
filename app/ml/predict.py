@@ -1,15 +1,34 @@
-from typing import Dict, Any
+from app.ml.model_loader import url_model, url_vectorizer
 
-from app.ml.model_loader import get_model_and_vectorizer
-
-
-def predict_proba(feature_dict: Dict[str, Any]) -> float:
-    model, vectorizer = get_model_and_vectorizer()
-    X = vectorizer.transform([feature_dict])
-    proba = model.predict_proba(X)[0][1]
-    return float(proba)
-
-
-def predict_label(feature_dict: Dict[str, Any], threshold: float = 0.5) -> int:
-    score = predict_proba(feature_dict)
-    return int(score >= threshold)
+# predict if a URL is phishing or benign
+def predict_url(url: str) -> dict:
+    if not url:
+        return {
+            "verdict": "benign",
+            "confidence": 0.0,
+            "error": "Empty URL"
+        }
+    
+    # transform URL using vectorizer
+    url_features = url_vectorizer.transform([url])
+    
+    # get prediction
+    prediction = url_model.predict(url_features)[0]
+    
+    # get probability scores
+    proba = url_model.predict_proba(url_features)[0]
+    
+    # determine verdict and confidence
+    if prediction == 1 or prediction == "phishing":
+        verdict = "phishing"
+        confidence = proba[1] if len(proba) > 1 else proba[0]
+    else:
+        verdict = "benign"
+        confidence = proba[0] if len(proba) > 1 else proba[0]
+    
+    return {
+        "verdict": verdict,
+        "confidence": float(confidence),
+        "score": float(proba[1] if len(proba) > 1 else confidence),
+        "url": url
+    }

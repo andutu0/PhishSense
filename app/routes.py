@@ -6,31 +6,6 @@ from app.storage.json_storage import append_scan, get_recent_scans
 def index():
     return render_template('index.html')
 
-@current_app.route('/analyze', methods=['POST'])
-def analyze():
-    try:
-        text_input = request.form.get('text', '').strip()
-        file = request.files.get('image')
-        
-        if not text_input and not file:
-            return jsonify({'error': 'Please provide text or upload an image'}), 400
-        
-        if file:
-            result = analyze_qr_image(file)
-        elif 'http' in text_input.lower():
-            result = analyze_url(text_input)
-        else:
-            result = analyze_email("", text_input, "")
-        
-        return jsonify({
-            'verdict': result.get('verdict', 'unknown'),
-            'confidence': result.get('confidence', 0.0),
-            'details': result
-        })
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 @current_app.route('/api/analyze_url', methods=['POST'])
 def api_analyze_url():
     data = request.get_json(force=True, silent=True) or {}

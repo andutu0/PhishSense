@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 from app.analysis.pipeline import analyze_url, analyze_email
 from app.storage.json_storage import append_scan, get_recent_scans
 
-
+# command: scan-url
 def cmd_scan_url(args: argparse.Namespace) -> int:
     url = args.url
     log = bool(args.log)
@@ -19,7 +19,7 @@ def cmd_scan_url(args: argparse.Namespace) -> int:
 
     return 0
 
-
+# command: scan-email
 def cmd_scan_email(args: argparse.Namespace) -> int:
     subject = args.subject or ""
     body = args.body or ""
@@ -34,7 +34,7 @@ def cmd_scan_email(args: argparse.Namespace) -> int:
 
     return 0
 
-
+# command: history
 def cmd_history(args: argparse.Namespace) -> int:
     limit = args.limit
     items: List[Dict[str, Any]] = get_recent_scans(limit=limit)
@@ -46,7 +46,6 @@ def cmd_history(args: argparse.Namespace) -> int:
         verdict = rec.get("verdict", "?")
         inp = rec.get("input", "")
         if isinstance(inp, dict):
-            # pentru email input este dict cu subject, sender etc
             short_input = inp.get("subject", "") or str(inp)
         else:
             short_input = str(inp)
@@ -54,7 +53,7 @@ def cmd_history(args: argparse.Namespace) -> int:
 
     return 0
 
-
+# build argument parser
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="PhishSense CLI - scan URLs and emails for phishing indicators"
