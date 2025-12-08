@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, current_app
 from app.analysis.pipeline import analyze_url, analyze_email, analyze_qr_image
-from app.storage.json_storage import append_scan, get_recent_scans
+from app.storage.json_storage import append_scan, get_recent_scans, get_session_scans
 
 @current_app.route('/')
 def index():
@@ -48,4 +48,12 @@ def api_analyze_qr():
 def api_history():
     limit = request.args.get("limit", default=20, type=int)
     scans = get_recent_scans(limit=limit)
+    return jsonify({"items": scans})
+
+
+@current_app.route('/api/session_history', methods=['GET'])
+def api_session_history():
+    limit = request.args.get("limit", default=20, type=int)
+    session_id = request.args.get("session_id") or None
+    scans = get_session_scans(session_id=session_id, limit=limit)
     return jsonify({"items": scans})

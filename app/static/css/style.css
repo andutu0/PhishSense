@@ -17,11 +17,15 @@ body, html {
 
 /* Dark overlay + blur */
 .background-overlay {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(13, 17, 23, 0.75);
   backdrop-filter: blur(6px);
-  z-index: 1;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* ============================================
@@ -29,11 +33,9 @@ body, html {
 ============================================ */
 .navbar {
   width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
   padding: 10px 0;
-  z-index: 1000;
+  z-index: 100;
   background: #020B18;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -63,10 +65,10 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 150px;
+  padding-top: 2rem;
   padding-left: 0;
   padding-right: 0;
-  min-height: 100vh;
+  min-height: 90vh;
   position: relative;
   z-index: 5;
 }
@@ -162,6 +164,26 @@ h1 {
   transform: scale(1.02);
 }
 
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  user-select: none;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #00bcd4;
+  cursor: pointer;
+}
+
+.label.inline {
+  display: inline;
+  margin: 0;
+}
+
 /* Buttons */
 .actions {
   margin-top: 1.8rem;
@@ -194,6 +216,65 @@ h1 {
 
 .btn.ghost:hover {
   background: rgba(0,188,212,0.15);
+}
+
+.history {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  background: rgba(13, 17, 23, 0.55);
+  color: #c9d1d9;
+}
+
+.history-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.history-list li {
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  line-height: 1.4;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.pill.good {
+  background: rgba(0,255,65,0.12);
+  color: #00ff65;
+  border: 1px solid rgba(0,255,65,0.3);
+}
+
+.pill.bad {
+  background: rgba(255,68,68,0.12);
+  color: #ff4444;
+  border: 1px solid rgba(255,68,68,0.3);
+}
+
+.muted {
+  color: #8b949e;
+  font-size: 0.85rem;
+}
+
+.small {
+  font-size: 0.9rem;
+  color: #c9d1d9;
+  word-break: break-word;
 }
 
 /* Result display */

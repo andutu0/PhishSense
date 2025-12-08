@@ -34,13 +34,21 @@
         <input type="file" id="image" name="image" class="input" accept="image/*">
       </div>
 
+      <div class="checkbox-row">
+        <input type="checkbox" id="log-toggle" name="log-toggle" class="checkbox">
+        <label for="log-toggle" class="label inline">Save to session history (optional)</label>
+      </div>
+
       <div class="actions">
         <button type="submit" class="btn">Analyze</button>
         <button type="button" class="btn ghost" onclick="document.getElementById('analyze-form').reset(); document.getElementById('result').innerHTML='';">Clear</button>
+        <button type="button" class="btn ghost" id="load-history">View session history</button>
       </div>
     </form>
 
     <section id="result" class="result" aria-live="polite"></section>
+
+    <section id="history" class="history" aria-live="polite"></section>
 
     <footer class="card-footer">
       <small>Local analysis — no uploads are stored.</small>
