@@ -4,10 +4,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const historySection = document.getElementById("history");
     const logToggle = document.getElementById("log-toggle");
 
+    // Always generate a new session ID on page load (destroy previous session)
+    localStorage.removeItem("sessionId");
+    const sessionId = "sess_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("sessionId", sessionId);
+
     async function fetchSessionHistory() {
         if (!historySection) return;
 
-        historySection.className = "history";
+        historySection.className = "history visible";
         historySection.innerHTML = "";
         if (historyButton) {
             historyButton.disabled = true;
@@ -15,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const resp = await fetch("/api/session_history?limit=20");
+            const resp = await fetch(`/api/session_history?limit=20&session_id=${encodeURIComponent(sessionId)}`);
             const data = await resp.json();
             const items = data.items || [];
 
@@ -91,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const formData = new FormData();
                     formData.append("qr_image", fileInput);
                     formData.append("log", String(shouldLog));
+                    formData.append("session_id", sessionId);
                     
                     response = await fetch("/api/analyze_qr", {
                         method: "POST",
@@ -105,7 +111,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         },
                         body: JSON.stringify({
                             url: textInput,
-                            log: shouldLog
+                            log: shouldLog,
+                            session_id: sessionId
                         })
                     });
                 } else if (textInput) {
@@ -119,7 +126,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             subject: "",
                             body: textInput,
                             sender: "",
-                            log: shouldLog
+                            log: shouldLog,
+                            session_id: sessionId
                         })
                     });
                 } else {

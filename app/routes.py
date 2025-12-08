@@ -11,10 +11,11 @@ def api_analyze_url():
     data = request.get_json(force=True, silent=True) or {}
     url = data.get("url", "")
     log = bool(data.get("log", False))
+    session_id = data.get("session_id") or None
 
     result = analyze_url(url)
     if log:
-        append_scan(result)
+        append_scan(result, session_id=session_id)
     return jsonify(result)
 
 @current_app.route('/api/analyze_email', methods=['POST'])
@@ -24,10 +25,11 @@ def api_analyze_email():
     body = data.get("body", "")
     sender = data.get("sender", "")
     log = bool(data.get("log", False))
+    session_id = data.get("session_id") or None
 
     result = analyze_email(subject, body, sender)
     if log:
-        append_scan(result)
+        append_scan(result, session_id=session_id)
     return jsonify(result)
 
 @current_app.route('/api/analyze_qr', methods=['POST'])
@@ -38,10 +40,11 @@ def api_analyze_qr():
 
     log_str = request.form.get("log", "false").lower()
     log = log_str in ("1", "true", "yes", "on")
+    session_id = request.form.get("session_id") or None
 
     result = analyze_qr_image(file)
     if log:
-        append_scan(result)
+        append_scan(result, session_id=session_id)
     return jsonify(result)
 
 @current_app.route('/api/history', methods=['GET'])

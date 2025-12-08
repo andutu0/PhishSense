@@ -219,12 +219,17 @@ h1 {
 }
 
 .history {
+  display: none;
   margin-top: 1.5rem;
   padding: 1rem;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   background: rgba(13, 17, 23, 0.55);
   color: #c9d1d9;
+}
+
+.history.visible {
+  display: block;
 }
 
 .history-list {
