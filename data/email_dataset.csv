@@ -1,0 +1,71 @@
+phrase,label
+urgent action required,phishing
+verify your account,phishing
+update your password,phishing
+your account will be suspended,phishing
+confirm your identity,phishing
+login to your bank account,phishing
+click here immediately,phishing
+your account has been compromised,phishing
+unusual activity detected,phishing
+security alert,phishing
+verify your payment information,phishing
+update billing details,phishing
+claim your prize now,phishing
+you've won,phishing
+congratulations you have been selected,phishing
+act now or lose access,phishing
+confirm your email address,phishing
+reset your password immediately,phishing
+unauthorized login attempt,phishing
+your package could not be delivered,phishing
+reactivate your account,phishing
+payment failed,phishing
+invoice attached,phishing
+tax refund pending,phishing
+confirm this transaction,phishing
+your order has been cancelled,phishing
+account locked,phishing
+verify within 24 hours,phishing
+click to unsubscribe,phishing
+suspended due to unusual activity,phishing
+re-enter your credentials,phishing
+update your security settings,phishing
+download attachment for details,phishing
+wire transfer required,phishing
+urgent payment request,phishing
+dear customer,phishing
+dear valued member,phishing
+final notice,phishing
+limited time offer,phishing
+expire soon,phishing
+thank you for your order,benign
+your meeting is scheduled,benign
+password reset requested,benign
+welcome to our service,benign
+your subscription renewal,benign
+monthly newsletter,benign
+team update,benign
+project deadline reminder,benign
+invoice for services rendered,benign
+appointment confirmation,benign
+shipping notification,benign
+order confirmation,benign
+receipt for your purchase,benign
+weekly report,benign
+calendar invite,benign
+document shared with you,benign
+comment on your post,benign
+friend request,benign
+new message from,benign
+your feedback matters,benign
+hi there,benign
+dear john,benign
+hello team,benign
+good morning,benign
+regards,benign
+best wishes,benign
+thank you,benign
+please review,benign
+for your information,benign
+as discussed,benign

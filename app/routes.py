@@ -1,26 +1,76 @@
-from flask import Blueprint, render_template, request, jsonify
-from .model import predict
-from .qr_utils import decode_qr
+from flask import render_template, request, jsonify, current_app
+from app.analysis.pipeline import analyze_url, analyze_email, analyze_qr_image
+from app.storage.json_storage import append_scan, get_recent_scans
 
-main_bp = Blueprint("main", __name__)
-
-@main_bp.route("/")
+@current_app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
-@main_bp.route("/analyze", methods=["POST"])
+@current_app.route('/analyze', methods=['POST'])
 def analyze():
-    text_input = ""
+    try:
+        text_input = request.form.get('text', '').strip()
+        file = request.files.get('image')
+        
+        if not text_input and not file:
+            return jsonify({'error': 'Please provide text or upload an image'}), 400
+        
+        if file:
+            result = analyze_qr_image(file)
+        elif 'http' in text_input.lower():
+            result = analyze_url(text_input)
+        else:
+            result = analyze_email("", text_input, "")
+        
+        return jsonify({
+            'verdict': result.get('verdict', 'unknown'),
+            'confidence': result.get('confidence', 0.0),
+            'details': result
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-    # Handle QR image upload
-    if "qr_file" in request.files and request.files["qr_file"].filename != "":
-        qr_file = request.files["qr_file"]
-        text_input = decode_qr(qr_file)
-    else:
-        text_input = request.form.get("text", "")
+@current_app.route('/api/analyze_url', methods=['POST'])
+def api_analyze_url():
+    data = request.get_json(force=True, silent=True) or {}
+    url = data.get("url", "")
+    log = bool(data.get("log", False))
 
-    if not text_input.strip():
-        return jsonify({"error": "No input provided"}), 400
-
-    result = predict(text_input)
+    result = analyze_url(url)
+    if log:
+        append_scan(result)
     return jsonify(result)
+
+@current_app.route('/api/analyze_email', methods=['POST'])
+def api_analyze_email():
+    data = request.get_json(force=True, silent=True) or {}
+    subject = data.get("subject", "")
+    body = data.get("body", "")
+    sender = data.get("sender", "")
+    log = bool(data.get("log", False))
+
+    result = analyze_email(subject, body, sender)
+    if log:
+        append_scan(result)
+    return jsonify(result)
+
+@current_app.route('/api/analyze_qr', methods=['POST'])
+def api_analyze_qr():
+    file = request.files.get("qr_image")
+    if file is None:
+        return jsonify({"error": "qr_image file is required"}), 400
+
+    log_str = request.form.get("log", "false").lower()
+    log = log_str in ("1", "true", "yes", "on")
+
+    result = analyze_qr_image(file)
+    if log:
+        append_scan(result)
+    return jsonify(result)
+
+@current_app.route('/api/history', methods=['GET'])
+def api_history():
+    limit = request.args.get("limit", default=20, type=int)
+    scans = get_recent_scans(limit=limit)
+    return jsonify({"items": scans})

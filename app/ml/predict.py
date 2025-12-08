@@ -1,12 +1,15 @@
-from .model_loader import get_model
-import numpy as np
+from typing import Dict, Any
 
-def predict(text):
-    model, vectorizer = get_model()
-    if model is None or vectorizer is None:
-        return {"verdict": "safe", "confidence": 0.5}
+from app.ml.model_loader import get_model_and_vectorizer
 
-    X = vectorizer.transform([text])
-    prob = model.predict_proba(X)[0, 1]
-    verdict = "malicious" if prob > 0.5 else "safe"
-    return {"verdict": verdict, "confidence": float(round(prob, 3))}
+
+def predict_proba(feature_dict: Dict[str, Any]) -> float:
+    model, vectorizer = get_model_and_vectorizer()
+    X = vectorizer.transform([feature_dict])
+    proba = model.predict_proba(X)[0][1]
+    return float(proba)
+
+
+def predict_label(feature_dict: Dict[str, Any], threshold: float = 0.5) -> int:
+    score = predict_proba(feature_dict)
+    return int(score >= threshold)

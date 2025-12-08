@@ -1,43 +1,51 @@
-import joblib
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import argparse
+import csv
+from pathlib import Path
+from typing import List, Dict, Any, Tuple
 
-# --- Încarcă model și vectorizer ---
-model_path = "model.pkl"
-vectorizer_path = "vectorizer.pkl"
+from sklearn.metrics import classification_report
 
-try:
-    model = joblib.load(model_path)
-    vectorizer = joblib.load(vectorizer_path)
-    print("[+] Model și vectorizer încărcate cu succes")
-except Exception as e:
-    print("[!] Nu s-au putut încărca modelul/vectorizerul:", e)
-    exit(1)
+from app.analysis import url_utils, feature_extractor
+from app.ml.model_loader import get_model_and_vectorizer
 
-# --- Exemplu de date de test ---
-X_test = [
-    "You won a free iPhone, click here",
-    "Meeting at 10am tomorrow",
-    "Your account is suspended, verify now",
-    "Lunch at 12?",
-    "Update your billing info immediately"
-]
 
-y_test = [1, 0, 1, 0, 1]  # 1 = phishing, 0 = safe
+def load_dataset(csv_path: Path) -> Tuple[List[Dict[str, Any]], List[int]]:
+    feats: List[Dict[str, Any]] = []
+    labels: List[int] = []
 
-# --- Transformă textul în vectori ---
-X_vec = vectorizer.transform(X_test)
+    with csv_path.open("r", encoding="utf8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            url = row["url"]
+            label_raw = str(row["label"]).strip().lower()
 
-# --- Prezice ---
-y_pred = model.predict(X_vec)
+            if label_raw in ("phish", "phishing", "malicious", "bad", "1"):
+                label = 1
+            else:
+                label = 0
 
-# --- Calculează metrici ---
-acc = accuracy_score(y_test, y_pred)
-prec = precision_score(y_test, y_pred)
-rec = recall_score(y_test, y_pred)
-f1 = f1_score(y_test, y_pred)
+            parsed = url_utils.extract_url_features(url)
+            feat = feature_extractor.build_features_from_url(parsed)
+            feats.append(feat)
+            labels.append(label)
 
-print("\n=== Metrics ===")
-print(f"Accuracy : {acc:.3f}")
-print(f"Precision: {prec:.3f}")
-print(f"Recall   : {rec:.3f}")
-print(f"F1-score : {f1:.3f}")
+    return feats, labels
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--csv", required=True, help="Path to CSV dataset")
+    args = parser.parse_args()
+
+    csv_path = Path(args.csv)
+    X_dicts, y_true = load_dataset(csv_path)
+
+    model, vec = get_model_and_vectorizer()
+    X = vec.transform(X_dicts)
+    y_pred = model.predict(X)
+
+    print(classification_report(y_true, y_pred))
+
+
+if __name__ == "__main__":
+    main()

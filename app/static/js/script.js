@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData(analyzeForm);
             const resultDiv = document.getElementById("result");
             resultDiv.innerHTML = "Analyzing... ⏳";
+            resultDiv.className = "result";
 
             try {
                 const response = await fetch("/analyze", {
@@ -22,20 +23,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 const data = await response.json();
 
                 if (data.error) {
-                    resultDiv.innerHTML =
-                        "<p style='color:red;'>" + data.error + "</p>";
+                    resultDiv.innerHTML = "<p style='color:red;'>" + data.error + "</p>";
+                    resultDiv.className = "result";
                 } else {
-                    const color = data.verdict === "malicious" ? "red" : "green";
+                    const isMalicious = data.verdict === "malicious" || data.verdict === "phishing";
+                    const statusClass = isMalicious ? "malicious" : "safe";
+                    const statusText = isMalicious ? "MALICIOUS" : "SAFE";
+                    
+                    resultDiv.className = "result " + statusClass;
                     resultDiv.innerHTML =
-                        "<h3 style='color:" + color + "'>Verdict: " +
-                        data.verdict.toUpperCase() + "</h3>" +
-                        "<p>Confidence: " +
-                        (data.confidence * 100).toFixed(1) + "%</p>";
+                        "<h3>" + statusText + "</h3>" +
+                        "<p>" + (data.confidence * 100).toFixed(1) + "% confidence</p>";
                 }
 
             } catch (err) {
-                resultDiv.innerHTML =
-                    "<p style='color:red;'>Error: " + err.message + "</p>";
+                resultDiv.innerHTML = "<p style='color:red;'>Error: " + err.message + "</p>";
+                resultDiv.className = "result";
             }
         });
     }

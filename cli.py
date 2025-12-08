@@ -1,71 +1,136 @@
+#!/usr/bin/env python3
 import argparse
-import sys
-from app.model import load_model
-from app.analysis.pipeline import analyze_url, analyze_email, analyze_qr_image
-from app.ml.model_loader import get_model
+import json
+from typing import Any, Dict, List
+
+from app.analysis.pipeline import analyze_url, analyze_email
+from app.storage.json_storage import append_scan, get_recent_scans
 
 
-# -------------------------
-# Main CLI logic
-# -------------------------
-def main():
+def cmd_scan_url(args: argparse.Namespace) -> int:
+    url = args.url
+    log = bool(args.log)
+
+    result = analyze_url(url)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+    if log:
+        append_scan(result)
+
+    return 0
+
+
+def cmd_scan_email(args: argparse.Namespace) -> int:
+    subject = args.subject or ""
+    body = args.body or ""
+    sender = args.sender or ""
+    log = bool(args.log)
+
+    result = analyze_email(subject, body, sender)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+    if log:
+        append_scan(result)
+
+    return 0
+
+
+def cmd_history(args: argparse.Namespace) -> int:
+    limit = args.limit
+    items: List[Dict[str, Any]] = get_recent_scans(limit=limit)
+
+    print(f"Last {len(items)} scans:")
+    for i, rec in enumerate(items, start=1):
+        t = rec.get("timestamp", "?")
+        rtype = rec.get("type", "?")
+        verdict = rec.get("verdict", "?")
+        inp = rec.get("input", "")
+        if isinstance(inp, dict):
+            # pentru email input este dict cu subject, sender etc
+            short_input = inp.get("subject", "") or str(inp)
+        else:
+            short_input = str(inp)
+        print(f"{i:3d}. [{t}] [{rtype}] [{verdict}] {short_input}")
+
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="PhishSense CLI - Analyze text, URLs, emails, or QR codes"
+        description="PhishSense CLI - scan URLs and emails for phishing indicators"
     )
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    parser.add_argument(
-        "command",
-        choices=["scan-text", "scan-url", "scan-email", "scan-qr"],
-        help="Type of scan to perform",
+    # scan-url
+    url_cmd = subparsers.add_parser(
+        "scan-url",
+        help="Scan a single URL",
     )
-
-    parser.add_argument(
-        "value",
-        help="Text / URL / path to file (depending on command)",
+    url_cmd.add_argument(
+        "url",
+        help="URL to scan (e.g. http://example.com/login)",
     )
-
-    parser.add_argument(
-        "--model", default="model.pkl",
-        help="Path to trained ML model (.pkl)"
+    url_cmd.add_argument(
+        "--log",
+        action="store_true",
+        help="Append this scan to data/scans.jsonl",
     )
+    url_cmd.set_defaults(func=cmd_scan_url)
 
-    parser.add_argument(
-        "--vectorizer", default="vectorizer.pkl",
-        help="Path to trained vectorizer (.pkl)"
+    # scan-email
+    email_cmd = subparsers.add_parser(
+        "scan-email",
+        help="Scan an email (subject + body + sender)",
     )
+    email_cmd.add_argument(
+        "--subject",
+        default="",
+        help="Email subject",
+    )
+    email_cmd.add_argument(
+        "--body",
+        default="",
+        help="Email body text",
+    )
+    email_cmd.add_argument(
+        "--sender",
+        default="",
+        help="Email sender address (e.g. support@bank.com)",
+    )
+    email_cmd.add_argument(
+        "--log",
+        action="store_true",
+        help="Append this scan to data/scans.jsonl",
+    )
+    email_cmd.set_defaults(func=cmd_scan_email)
 
-    args = parser.parse_args()
+    # history
+    hist_cmd = subparsers.add_parser(
+        "history",
+        help="Show recent scans from data/scans.jsonl",
+    )
+    hist_cmd.add_argument(
+        "--limit",
+        type=int,
+        default=20,
+        help="How many recent scans to show (default: 20)",
+    )
+    hist_cmd.set_defaults(func=cmd_history)
 
-    # --- Load ML model ---
-    load_model(args.model, args.vectorizer)
+    return parser
 
-    # --- Handle each command ---
-    try:
-        if args.command == "scan-text":
-            text = args.value.strip()
-            result = analyze_email(text)  # treat text as email/message
-            print(result)
 
-        elif args.command == "scan-url":
-            url = args.value.strip()
-            result = analyze_url(url)
-            print(result)
+def main(argv=None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
 
-        elif args.command == "scan-email":
-            with open(args.value, "r", encoding="utf-8") as f:
-                content = f.read()
-            result = analyze_email(content)
-            print(result)
+    func = getattr(args, "func", None)
+    if func is None:
+        parser.print_help()
+        return 1
 
-        elif args.command == "scan-qr":
-            with open(args.value, "rb") as f:
-                result = analyze_qr_image(f)
-            print(result)
-
-    except Exception as e:
-        print("[!] Error during scanning:", e)
-        sys.exit(1)
+    return func(args)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

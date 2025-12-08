@@ -1,7 +1,5 @@
 flask
 scikit-learn
-joblib
-numpy
 pandas
 pyzbar
-opencv-python
+Pillow

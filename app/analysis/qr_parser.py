@@ -1,11 +1,27 @@
-import cv2
-import numpy as np
+from typing import Dict, Any
+
+from PIL import Image
 from pyzbar.pyzbar import decode
 
-def decode_qr(file):
-    npimg = np.frombuffer(file.read(), np.uint8)
-    img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-    decoded_objects = decode(img)
-    if not decoded_objects:
-        return ""
-    return decoded_objects[0].data.decode("utf-8")
+
+def decode_qr_image(file_storage) -> Dict[str, Any]:
+    image = Image.open(file_storage.stream)
+    decoded = decode(image)
+
+    if not decoded:
+        return {
+            "raw_data": None,
+            "type": "unknown",
+        }
+
+    data = decoded[0].data.decode("utf8", errors="ignore")
+
+    if data.startswith("http://") or data.startswith("https://"):
+        data_type = "url"
+    else:
+        data_type = "text"
+
+    return {
+        "raw_data": data,
+        "type": data_type,
+    }

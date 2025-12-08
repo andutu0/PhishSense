@@ -12,13 +12,11 @@ def load_model(model_path, vectorizer_path):
         print("[+] Model and vectorizer loaded.")
     except Exception as e:
         print("[!] Could not load model/vectorizer:", e)
-        # fallback dummy model for dev
         model = None
         vectorizer = None
 
 def predict(text):
     if model is None or vectorizer is None:
-        # Fallback when model not trained yet
         return {"verdict": "safe", "confidence": 0.5}
 
     X = vectorizer.transform([text])

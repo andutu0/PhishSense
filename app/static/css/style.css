@@ -10,8 +10,7 @@
 body, html {
   height: 100%;
   font-family: "Inter", Arial, sans-serif;
-  background: url('/static/img/logo5.png') no-repeat center center fixed !important;
-  background-size: cover !important;
+  background: #020B18 !important;
   color: #e6edf3;
   overflow-x: hidden;
 }
@@ -46,14 +45,15 @@ body, html {
   justify-content: center;
   padding: 0;
 }
+
 .logo {
-  height: 100px;
-  transition: transform 0.3s ease;
-  animation: pulseLogo 2.2s ease-in-out infinite;
+  height: 120px;
+  transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .logo:hover {
   transform: scale(1.05);
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
 }
 
 /* ============================================
@@ -61,10 +61,11 @@ body, html {
 ============================================ */
 .page {
   display: flex;
-  justify-content: flex-start;   /* mutăm tot conținutul spre stânga */
+  justify-content: center;
   align-items: flex-start;
   padding-top: 150px;
-  padding-left: 0px;           /* distanță față de marginea stângă */
+  padding-left: 0;
+  padding-right: 0;
   min-height: 100vh;
   position: relative;
   z-index: 5;
@@ -75,20 +76,20 @@ body, html {
 ============================================ */
 .card {
   width: 90%;
-  max-width: 650px;
-  margin: 2rem 0 2rem 170px;;
+  max-width: 800px;
+  margin: 2rem auto;
   padding: 2rem;
 
   background: rgba(22, 27, 34, 0.75);
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.06);
   backdrop-filter: blur(12px);
-  box-shadow: 0 0 40px rgba(0, 255, 255, 0.05);
+  box-shadow: 0 0 60px rgba(0, 255, 255, 0.15);
 
   position: relative;
   z-index: 20;
 
-  opacity: 1; /* vizibil direct */
+  opacity: 1;
   transform: none;
 }
 
@@ -138,11 +139,35 @@ h1 {
   resize: vertical;
 }
 
+/* File input styling */
+.input[type="file"] {
+  padding: 0.6rem;
+  cursor: pointer;
+}
+
+.input[type="file"]::file-selector-button {
+  background: #00bcd4;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  color: #0d1117;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 1rem;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.input[type="file"]::file-selector-button:hover {
+  background: #00e5ff;
+  transform: scale(1.02);
+}
+
 /* Buttons */
 .actions {
   margin-top: 1.8rem;
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .btn {
@@ -171,6 +196,35 @@ h1 {
   background: rgba(0,188,212,0.15);
 }
 
+/* Result display */
+.result {
+  flex: 1;
+  text-align: right;
+  font-weight: 600;
+  padding-right: 0.5rem;
+}
+
+.result.safe {
+  color: #00ff41;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+}
+
+.result.malicious {
+  color: #ff4444;
+  text-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+}
+
+.result h3 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.result p {
+  font-size: 0.9rem;
+  margin: 0.2rem 0 0 0;
+  opacity: 0.9;
+}
+
 /* Footer */
 .card-footer {
   margin-top: 1.5rem;
@@ -179,16 +233,52 @@ h1 {
   font-size: 0.9rem;
 }
 @keyframes pulseLogo {
-  0% {
+  0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 0px #00e5ff);
+    filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.3));
   }
   50% {
-    transform: scale(1.07);
-    filter: drop-shadow(0 0 12px #00e5ff);
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.5));
   }
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0px #00e5ff);
-  }
+}
+
+/* ============================================
+   FOOTER SOCIAL BAR
+============================================ */
+.social-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 1rem 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.social-footer a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #00bcd4;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+  font-weight: 500;
+}
+
+.social-footer a:hover {
+  color: #00e5ff;
+  transform: translateY(-2px);
+}
+
+.social-footer svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
 }
